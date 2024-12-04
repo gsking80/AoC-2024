@@ -15,12 +15,12 @@ public class Day02 {
 
   public long safetyCount() {
     long count = 0;
-      for (String line : lines) {
-        var reports = Arrays.stream(line.split(" ")).mapToLong(Long::parseLong).boxed().toList();
-        if (safety(reports))  {
-          count++;
-        }
+    for (String line : lines) {
+      var reports = Arrays.stream(line.split(" ")).mapToLong(Long::parseLong).boxed().toList();
+      if (safety(reports)) {
+        count++;
       }
+    }
     return count;
   }
 

@@ -12,7 +12,7 @@ public class Day01 {
     this.lines = lines;
   }
 
-  public long distance()  {
+  public long distance() {
     var left = new ArrayList<Long>();
     var right = new ArrayList<Long>();
     for (var line : lines) {
@@ -29,7 +29,7 @@ public class Day01 {
     return distance;
   }
 
-  public long similarity()  {
+  public long similarity() {
     var left = new ArrayList<Long>();
     var right = new HashMap<Long, Long>();
     for (var line : lines) {
@@ -38,11 +38,10 @@ public class Day01 {
       var num = Long.parseLong(temp[1]);
       right.put(num, right.getOrDefault(num, 0L) + 1);
     }
-   long similarity =0;
+    long similarity = 0;
     for (var num : left) {
       similarity += num * right.getOrDefault(num, 0L);
     }
-   return similarity;
+    return similarity;
   }
-
 }

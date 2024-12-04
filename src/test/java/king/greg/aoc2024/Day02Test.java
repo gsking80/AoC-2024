@@ -45,5 +45,4 @@ class Day02Test {
     final Day02 day02 = new Day02(lines);
     Assertions.assertThat(day02.dampenerSafetyCount()).isEqualTo(285);
   }
-
 }

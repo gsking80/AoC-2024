@@ -25,7 +25,7 @@ class Day03Test {
         Objects.requireNonNull(getClass().getClassLoader().getResource("Day03/input.txt"))
             .toURI()));
     final Day03 day03 = new Day03(lines);
-    Assertions.assertThat(day03.mulSum()).isEqualTo(185797128); // not 30916125L
+    Assertions.assertThat(day03.mulSum()).isEqualTo(185797128);
   }
 
   @Test
@@ -43,6 +43,6 @@ class Day03Test {
         Objects.requireNonNull(getClass().getClassLoader().getResource("Day03/input.txt"))
             .toURI()));
     final Day03 day03 = new Day03(lines);
-    Assertions.assertThat(day03.conditionalMulSum()).isEqualTo(89798695); // not 30916125L
+    Assertions.assertThat(day03.conditionalMulSum()).isEqualTo(89798695);
   }
 }
