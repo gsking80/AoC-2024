@@ -45,39 +45,17 @@ public class Day12 {
         if (fenced.contains(point)) {
           continue;
         }
-        var fenceInfo = bulk ? bulkFarm(point) : farm(point);
-        fenced.addAll(fenceInfo.getLeft());
-        price += fenceInfo.getLeft().size() * fenceInfo.getRight();
+        var farmInfo = farm(point);
+        fenced.addAll(farmInfo.getLeft());
+        price += farmInfo.getLeft().size() *
+            (bulk ? countSides(farmInfo.getRight())
+                : farmInfo.getRight().size());
       }
     }
     return price;
   }
 
-  private Pair<Set<Point>, Integer> farm(final Point initialPoint) {
-    int fenceLength = 0;
-    final Character farmType = map.get(initialPoint);
-    Queue<Point> queue = new ArrayDeque<>();
-    final Set<Point> fenced = new HashSet<>();
-    queue.add(initialPoint);
-    while (!queue.isEmpty()) {
-      var point = queue.poll();
-      if (fenced.contains(point)) {
-        continue;
-      }
-      if (farmType.equals(map.get(point))) {
-        fenced.add(point);
-        for (final var direction : DIRECTIONS) {
-          queue.add(new Point(point.x + direction.x, point.y + direction.y));
-        }
-      } else {
-        fenceLength++;
-      }
-    }
-    return Pair.of(fenced, fenceLength);
-  }
-
-  private Pair<Set<Point>, Integer> bulkFarm(final Point initialPoint) {
-
+  private Pair<Set<Point>, Set<Pair<Point, Point>>> farm(final Point initialPoint) {
     final Character farmType = map.get(initialPoint);
     Queue<Pair<Point, Point>> queue = new ArrayDeque<>();
     final Set<Point> fenced = new HashSet<>();
@@ -105,7 +83,7 @@ public class Day12 {
             directionTravelled));
       }
     }
-    return Pair.of(fenced, countSides(fences));
+    return Pair.of(fenced, fences);
   }
 
   private int countSides(final Set<Pair<Point, Point>> fences) {
