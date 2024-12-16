@@ -157,38 +157,12 @@ public class Day16 {
     private int calcMinimumFinalScore() {
       int deltaX = end.x - location.x;
       int deltaY = end.y - location.y;
-      int minTurns;
-      switch (direction) {
-        case 0:
-          if (deltaX < 0) {
-            minTurns = 2;
-          } else {
-            minTurns = deltaY == 0 ? 0 : 1;
-          }
-          break;
-        case 1:
-          if (deltaY > 0) {
-            minTurns = 2;
-          } else {
-            minTurns = deltaX == 0 ? 0 : 1;
-          }
-          break;
-        case 2:
-          if (deltaX > 0) {
-            minTurns = 2;
-          } else {
-            minTurns = deltaY == 0 ? 0 : 1;
-          }
-          break;
-        case 3:
-          if (deltaY < 0) {
-            minTurns = 2;
-          } else {
-            minTurns = deltaX == 0 ? 0 : 1;
-          }
-          break;
-        default:
-          throw new IllegalStateException("Unexpected direction: " + direction);
+      var directionValue = DIRECTIONS.get(direction);
+      int minTurns = 0;
+      if ((deltaX * directionValue.x < 0) || (deltaY * directionValue.y < 0)) {
+        minTurns = 2;
+      } else if ((deltaX != 0 && directionValue.x == 0) || (deltaY != 0 && directionValue.y == 0)) {
+        minTurns = 1;
       }
       return score + Math.abs(deltaX) + Math.abs(deltaY) + 1000 * minTurns;
     }
