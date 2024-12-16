@@ -19,6 +19,7 @@ public class Day16 {
       new Point(0, -1),
       new Point(-1, 0),
       new Point(0, 1));
+  final Map<Pair<Point, Integer>, Set<Pair<Point, Integer>>> paths = new HashMap<>();
   private final char[][] map;
   private Point start;
   private Point end;
@@ -68,13 +69,13 @@ public class Day16 {
     Queue<Node> priorityQueue = initQueue();
     int bestScore = Integer.MAX_VALUE;
     final Map<Pair<Point, Integer>, Integer> visited = new HashMap<>();
-    final Map<Point, Set<Point>> paths = new HashMap<>();
+
     Node current;
     priorityQueue.add(new Node(new Point(start), 0, 0));
     while (!priorityQueue.isEmpty()) {
       current = priorityQueue.remove();
       if (current.score > bestScore) {
-        return paths.get(end).size();
+        return bestSeats(end).size();
       }
       final var state = Pair.of(current.location, current.direction);
       final Integer previousScore = visited.get(state);
@@ -82,18 +83,42 @@ public class Day16 {
         continue;
       }
       visited.put(state, current.score);
-      var bestPaths = paths.get(current.location);
-      if (bestPaths == null) {
-        bestPaths = new HashSet<>();
+      var pathsIn = paths.get(state);
+      if (pathsIn == null) {
+        pathsIn = new HashSet<>();
       }
-      bestPaths.addAll(current.visitedNodes);
-      paths.put(current.location, bestPaths);
+      pathsIn.add(current.previousState);
+      paths.put(state, pathsIn);
       if (current.location.equals(end)) {
         bestScore = current.score;
       }
-      priorityQueue.addAll(current.getNext());
+      if (previousScore == null) {
+        priorityQueue.addAll(current.getNext());
+      }
     }
     return -1;
+  }
+
+  private Set<Point> bestSeats(final Point location) {
+    final Set<Point> seats = new HashSet<>();
+    for (var direction = 0; direction < DIRECTIONS.size(); direction++) {
+      seats.addAll(bestSeats(Pair.of(location, direction)));
+    }
+    return seats;
+  }
+
+  private Set<Point> bestSeats(final Pair<Point, Integer> state) {
+    final Set<Point> previousSeats = new HashSet<>();
+    var pathsIn = paths.get(state);
+    if (pathsIn != null) {
+      for (var pathIn : pathsIn) {
+        if (pathIn != null) {
+          previousSeats.addAll(bestSeats(pathIn));
+        }
+      }
+    }
+    previousSeats.add(state.getLeft());
+    return previousSeats;
   }
 
   private PriorityQueue<Node> initQueue() {
@@ -106,20 +131,18 @@ public class Day16 {
     final Point location;
     final int direction;
     final int score;
-    final Set<Point> visitedNodes;
+    final Pair<Point, Integer> previousState;
     final int minimumFinalScore;
 
     Node(Point location, int direction, int score) {
-      this(location, direction, score, new HashSet<>());
+      this(location, direction, score, null);
     }
 
-    Node(Point location, int direction, int score, final Set<Point> visitedNodes) {
+    Node(Point location, int direction, int score, final Pair<Point, Integer> previousState) {
       this.location = location;
       this.direction = direction;
       this.score = score;
-      this.visitedNodes = new HashSet<>();
-      this.visitedNodes.addAll(visitedNodes);
-      this.visitedNodes.add(location);
+      this.previousState = previousState;
       this.minimumFinalScore = calcMinimumFinalScore();
     }
 
@@ -168,12 +191,16 @@ public class Day16 {
 
     public Set<Node> getNext() {
       final Set<Node> nextNodes = new HashSet<>();
-      nextNodes.add(new Node(location, (direction + 1) % 4, score + 1000, visitedNodes));
-      nextNodes.add(new Node(location, (direction + 3) % 4, score + 1000, visitedNodes));
+      nextNodes.add(
+          new Node(location, (direction + 1) % 4, score + 1000, Pair.of(location, direction)));
+      nextNodes.add(
+          new Node(location, (direction + 3) % 4, score + 1000, Pair.of(location, direction)));
       final int nextX = location.x + DIRECTIONS.get(direction).x;
       final int nextY = location.y + DIRECTIONS.get(direction).y;
-      if (map[nextY][nextX] == '.') {
-        nextNodes.add(new Node(new Point(nextX, nextY), direction, score + 1, visitedNodes));
+      final Point nextLocation = new Point(nextX, nextY);
+      if (map[nextY][nextX] == '.' && !location.equals(nextLocation)) {
+        nextNodes.add(
+            new Node(new Point(nextX, nextY), direction, score + 1, Pair.of(location, direction)));
       }
       return nextNodes;
     }
