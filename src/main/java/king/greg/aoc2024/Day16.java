@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListMap;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class Day16 {
@@ -20,6 +21,7 @@ public class Day16 {
       new Point(-1, 0),
       new Point(0, 1));
   final Map<Pair<Point, Integer>, Set<Pair<Point, Integer>>> paths = new HashMap<>();
+  final Map<String, Set<Point>> seatMemo = new ConcurrentSkipListMap<>();
   private final char[][] map;
   private Point start;
   private Point end;
@@ -108,17 +110,19 @@ public class Day16 {
   }
 
   private Set<Point> bestSeats(final Pair<Point, Integer> state) {
-    final Set<Point> previousSeats = new HashSet<>();
-    var pathsIn = paths.get(state);
-    if (pathsIn != null) {
-      for (var pathIn : pathsIn) {
-        if (pathIn != null) {
-          previousSeats.addAll(bestSeats(pathIn));
+    return seatMemo.computeIfAbsent(state.toString(), set -> {
+      final Set<Point> previousSeats = new HashSet<>();
+      var pathsIn = paths.get(state);
+      if (pathsIn != null) {
+        for (var pathIn : pathsIn) {
+          if (pathIn != null) {
+            previousSeats.addAll(bestSeats(pathIn));
+          }
         }
       }
-    }
-    previousSeats.add(state.getLeft());
-    return previousSeats;
+      previousSeats.add(state.getLeft());
+      return previousSeats;
+    });
   }
 
   private PriorityQueue<Node> initQueue() {
