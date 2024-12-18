@@ -36,6 +36,7 @@ public class Day18 {
   }
 
   public int steps(final int numberOfBytes) {
+    map.clear();
     for (int i = 0; i < numberOfBytes; i++) {
       map.add(bytes.get(i));
     }
@@ -58,12 +59,17 @@ public class Day18 {
   }
 
   public Point blocked() {
-    for (int i = 1; i <= bytes.size(); i++) {
-      if (steps(i) == -1) {
-        return bytes.get(i - 1);
+    int min = 1;
+    int max = bytes.size();
+    while (max - min > 1) {
+      var test = min + ((max - min) / 2);
+      if (steps(test) == -1) {
+        max = test;
+      } else {
+        min = test;
       }
     }
-    return null;
+    return bytes.get(max-1);
   }
 
   private PriorityQueue<Node> initQueue() {
