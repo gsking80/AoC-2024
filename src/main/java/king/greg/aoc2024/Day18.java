@@ -69,7 +69,7 @@ public class Day18 {
         min = test;
       }
     }
-    return bytes.get(max-1);
+    return bytes.get(max - 1);
   }
 
   private PriorityQueue<Node> initQueue() {
