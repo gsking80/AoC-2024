@@ -16,7 +16,7 @@ class Day20Test {
         Objects.requireNonNull(getClass().getClassLoader().getResource("Day20/sample1.txt"))
             .toURI()));
     final Day20 day20 = new Day20(lines);
-    Assertions.assertThat(day20.calculateShortcuts(2)).isEqualTo(44);
+    Assertions.assertThat(day20.findShortcuts(2, 2)).isEqualTo(44);
   }
 
   @Test
@@ -25,7 +25,7 @@ class Day20Test {
         Objects.requireNonNull(getClass().getClassLoader().getResource("Day20/input.txt"))
             .toURI()));
     final Day20 day20 = new Day20(lines);
-    Assertions.assertThat(day20.calculateShortcuts(100)).isEqualTo(1448);
+    Assertions.assertThat(day20.findShortcuts(2, 100)).isEqualTo(1448);
   }
 
   @Test
@@ -34,7 +34,7 @@ class Day20Test {
         Objects.requireNonNull(getClass().getClassLoader().getResource("Day20/sample1.txt"))
             .toURI()));
     final Day20 day20 = new Day20(lines);
-    Assertions.assertThat(day20.calculateShortcuts2(20, 76)).isEqualTo(3);
+    Assertions.assertThat(day20.findShortcuts(20, 76)).isEqualTo(3);
   }
 
   @Test
@@ -43,6 +43,6 @@ class Day20Test {
         Objects.requireNonNull(getClass().getClassLoader().getResource("Day20/input.txt"))
             .toURI()));
     final Day20 day20 = new Day20(lines);
-    Assertions.assertThat(day20.calculateShortcuts2(20, 100)).isEqualTo(1017615);
+    Assertions.assertThat(day20.findShortcuts(20, 100)).isEqualTo(1017615);
   }
 }
