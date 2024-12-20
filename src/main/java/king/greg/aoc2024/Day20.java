@@ -67,15 +67,13 @@ public class Day20 {
       final Point mapPoint = entry.getKey();
       final int distanceToEnd = entry.getValue();
       for (final Point direction1 : DIRECTIONS) {
-        for (final Point direction2 : DIRECTIONS) {
-          final Point testPoint = new Point(mapPoint.x + direction1.x + direction2.x,
-              mapPoint.y + direction1.y + direction2.y);
-          final Integer nextDistanceToEnd = distancesToEnd.get(testPoint);
-          if (nextDistanceToEnd != null) {
-            final int savings = (distanceToEnd - nextDistanceToEnd) - 2;
-            if (savings > 0) {
-              shortcuts[savings]++;
-            }
+        final Point testPoint = new Point(mapPoint.x + direction1.x * 2,
+            mapPoint.y + direction1.y * 2);
+        final Integer nextDistanceToEnd = distancesToEnd.get(testPoint);
+        if (nextDistanceToEnd != null) {
+          final int savings = (distanceToEnd - nextDistanceToEnd) - 2;
+          if (savings > 0) {
+            shortcuts[savings]++;
           }
         }
       }
