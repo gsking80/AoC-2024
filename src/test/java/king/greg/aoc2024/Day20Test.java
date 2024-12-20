@@ -34,7 +34,7 @@ class Day20Test {
         Objects.requireNonNull(getClass().getClassLoader().getResource("Day20/sample1.txt"))
             .toURI()));
     final Day20 day20 = new Day20(lines);
-    Assertions.assertThat(day20.findShortcuts(20, 76)).isEqualTo(3);
+    Assertions.assertThat(day20.findShortcuts(20, 50)).isEqualTo(285);
   }
 
   @Test
