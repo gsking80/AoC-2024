@@ -58,9 +58,11 @@ public class Day20 {
 
   public int findShortcuts(final int cheatTime, final int minimumTimeSaved) {
     int shortcutCount = 0;
-    for (int shortcutStartDistance = 0; shortcutStartDistance < path.size() - minimumTimeSaved; shortcutStartDistance++) {
+    for (int shortcutStartDistance = 0; shortcutStartDistance < path.size() - minimumTimeSaved;
+        shortcutStartDistance++) {
       final Point shortcutStart = path.get(shortcutStartDistance);
-      for (int shortcutEndDistance = shortcutStartDistance + minimumTimeSaved; shortcutEndDistance < path.size(); shortcutEndDistance++) {
+      for (int shortcutEndDistance = shortcutStartDistance + minimumTimeSaved;
+          shortcutEndDistance < path.size(); shortcutEndDistance++) {
         final Point shortcutEnd = path.get(shortcutEndDistance);
         final int shortcutDistance =
             Math.abs(shortcutStart.x - shortcutEnd.x) + Math.abs(shortcutStart.y - shortcutEnd.y);
