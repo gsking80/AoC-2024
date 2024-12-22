@@ -1,79 +1,76 @@
 package king.greg.aoc2024;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class Day22 {
 
-  private final List<String> lines;
+  private final int[] secrets;
 
   Day22(final List<String> lines) {
-    this.lines = lines;
+    secrets = new int[lines.size()];
+    for (int i = 0; i < lines.size(); i++) {
+      secrets[i] = Integer.parseInt(lines.get(i));
+    }
   }
 
-  private static long secretNumber(final long initialNumber, final long generations) {
-    long secretNumber = initialNumber;
+  private static int secretNumber(final int initialNumber, final int generations) {
+    int secretNumber = initialNumber;
     for (int i = 0; i < generations; i++) {
       secretNumber = nextSecretNumber(secretNumber);
     }
     return secretNumber;
   }
 
-  private static long nextSecretNumber(final long initialNumber) {
-    long secretNumber = initialNumber;
+  private static int nextSecretNumber(final int initialNumber) {
+    int secretNumber = initialNumber;
     var mixer = secretNumber << 6;
     secretNumber = secretNumber ^ mixer;
-    secretNumber = secretNumber % 16777216;
+    secretNumber = secretNumber & 16777215;
 
     mixer = secretNumber >> 5;
     secretNumber = secretNumber ^ mixer;
-    secretNumber = secretNumber % 16777216;
+    secretNumber = secretNumber & 16777215;
 
     mixer = secretNumber << 11;
     secretNumber = secretNumber ^ mixer;
-    secretNumber = secretNumber % 16777216;
+    secretNumber = secretNumber & 16777215;
     return secretNumber;
   }
 
-  public long secretNumberSums(final long generations) {
+  public long secretNumberSums(final int generations) {
     long result = 0;
-    for (final String line : lines) {
-      result += secretNumber(Long.parseLong(line), generations);
+    for (final int secret : secrets) {
+      result += secretNumber(secret, generations);
     }
     return result;
   }
 
-  public long mostBananas(final int generations) {
-    final int[][] prices = new int[lines.size()][generations + 1];
-    final int[][] changes = new int[lines.size()][generations + 1];
-    final Map<RecentChanges, Long> bestPrices = new HashMap<>();
-    for (int i = 0; i < lines.size(); i++) {
-      long secretNumber = Long.parseLong(lines.get(i));
-      prices[i][0] = (int) secretNumber % 10;
-      final Set<RecentChanges> seen = new HashSet<>();
+  public int mostBananas(final int generations) {
+    final int[] bananas = new int[1048576];
+    for (final int secret : secrets) {
+      int secretNumber = secret;
+      int bananaFilter = 0;
+      int price = secretNumber % 10;
+      final boolean[] filtersSeen = new boolean[1048576];
       for (int j = 1; j <= generations; j++) {
-        prices[i][j] = (int) secretNumber % 10;
-        changes[i][j] = prices[i][j] - prices[i][j - 1];
+        int lastPrice = price;
+        secretNumber = nextSecretNumber(secretNumber);
+        price = secretNumber % 10;
         if (j >= 4) {
-          final RecentChanges recentChanges = new RecentChanges(changes[i][j - 3], changes[i][j - 2],
-              changes[i][j - 1], changes[i][j]);
-          if (!seen.contains(recentChanges)) {
-            seen.add(recentChanges);
-            bestPrices.put(recentChanges,
-                bestPrices.getOrDefault(recentChanges, 0L) + prices[i][j]);
+          bananaFilter = ((bananaFilter & 32767) << 5) + price + 9 - lastPrice;
+          if (!filtersSeen[bananaFilter]) {
+            filtersSeen[bananaFilter] = true;
+            bananas[bananaFilter] += price;
           }
         }
-        secretNumber = nextSecretNumber(secretNumber);
       }
     }
-    return Collections.max(bestPrices.values());
-  }
-
-  private record RecentChanges(int a, int b, int c, int d) {
-
+    int maxBananas = 0;
+    for (final int banana : bananas) {
+      if (banana > maxBananas) {
+        maxBananas = banana;
+      }
+    }
+    return maxBananas;
   }
 }
