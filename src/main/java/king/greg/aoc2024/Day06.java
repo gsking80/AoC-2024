@@ -1,11 +1,9 @@
 package king.greg.aoc2024;
 
 import java.awt.Point;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.lang3.tuple.Pair;
 
 public class Day06 {
 
@@ -58,12 +56,13 @@ public class Day06 {
   public int obstructions() {
     Point guardLocation = new Point(startLocation);
     int guardDirection = 0;
-    final List<Pair<Point, Integer>> path = new ArrayList<>();
+    final boolean[] path = new boolean[1048576];
     final Set<Point> positions = new HashSet<>();
     final Set<Point> obstacleOptions = new HashSet<>();
     while (guardLocation.x <= maxX && guardLocation.y <= maxY && guardLocation.x >= 0
         && guardLocation.y >= 0) {
-      path.add(Pair.of(new Point(guardLocation), guardDirection));
+      int pathKey = (((guardLocation.x << 9) + guardLocation.y) << 2) + guardDirection;
+      path[pathKey] = true;
       positions.add(new Point(guardLocation));
       var nextStep = new Point(guardLocation.x + directions[guardDirection].x,
           guardLocation.y + directions[guardDirection].y);
@@ -77,14 +76,14 @@ public class Day06 {
         var potentialDirection = (guardDirection + 1) % 4;
         var potentialX = guardLocation.x;
         var potentialY = guardLocation.y;
-        List<Pair<Point, Integer>> potentialPath = new ArrayList<>();
+        boolean[] potentialPath = new boolean[1048576];
         while (potentialX <= maxX && potentialY <= maxY && potentialX >= 0 && potentialY >= 0) {
-          var potentialPathStep = Pair.of(new Point(potentialX, potentialY), potentialDirection);
-          if (potentialPath.contains(potentialPathStep) || path.contains(potentialPathStep)) {
+          var potentialPathStep = (((potentialX << 9) + potentialY) << 2) + potentialDirection;
+          if (potentialPath[potentialPathStep] || path[potentialPathStep]) {
             obstacleOptions.add(nextStep);
             break;
           }
-          potentialPath.add(potentialPathStep);
+          potentialPath[potentialPathStep] = true;
           var nextPotentialX = potentialX + directions[potentialDirection].x;
           var nextPotentialY = potentialY + directions[potentialDirection].y;
           if (obstacles.contains(new Point(nextPotentialX, nextPotentialY)) || nextStep.equals(
