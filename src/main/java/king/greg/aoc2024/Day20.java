@@ -41,6 +41,7 @@ public class Day20 {
 
   private void calculatePath() {
     Point current = new Point(start);
+    Point previous = null;
     while (true) {
       path.add(current);
       if (current.equals(end)) {
@@ -48,7 +49,8 @@ public class Day20 {
       }
       for (final Point direction : DIRECTIONS) {
         var nextPoint = new Point(current.x + direction.x, current.y + direction.y);
-        if ((map[nextPoint.y][nextPoint.x] == '.') && !path.contains(nextPoint)) {
+        if ((map[nextPoint.y][nextPoint.x] == '.') && !nextPoint.equals(previous)) {
+          previous = current;
           current = nextPoint;
           break;
         }

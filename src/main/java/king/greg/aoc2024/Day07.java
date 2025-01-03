@@ -15,31 +15,44 @@ public class Day07 {
     long sum = 0;
     for (String line : lines) {
       var pieces = Arrays.stream(line.split(" |: ")).mapToLong(Long::parseLong).toArray();
-      if (canCalibrate(pieces, concatenate)) {
+      if (canCalibrateBackwards(pieces, pieces[0], pieces.length - 1, concatenate)) {
         sum += pieces[0];
       }
     }
     return sum;
   }
 
-  private boolean canCalibrate(final long[] pieces, final boolean concatenate) {
-    return canCalibrate(pieces, pieces[1] + pieces[2], 3, concatenate)
-        || canCalibrate(pieces, pieces[1] * pieces[2], 3, concatenate)
-        || (concatenate && canCalibrate(pieces,
-        Long.parseLong(String.valueOf(pieces[1]) + pieces[2]), 3, true));
-  }
-
-  private boolean canCalibrate(final long[] pieces, final long value, final int index,
+  private boolean canCalibrateBackwards(final long[] pieces, final long value, final int index,
       final boolean concatenate) {
-    if (index >= pieces.length) {
-      return value == pieces[0];
+    if (index < 1) {
+      return value == 0;
     }
-    if (value > pieces[0]) {
+    if (value < 1) {
       return false;
     }
-    return canCalibrate(pieces, value + pieces[index], index + 1, concatenate)
-        || canCalibrate(pieces, value * pieces[index], index + 1, concatenate)
-        || (concatenate && canCalibrate(pieces,
-        Long.parseLong(String.valueOf(value) + pieces[index]), index + 1, true));
+    return canAdd(pieces, value, index, concatenate)
+        || canMultiply(pieces, value, index, concatenate)
+        || (concatenate && canConcatenate(pieces, value, index));
+  }
+
+  private boolean canAdd(final long[] pieces, final long value, final int index,
+      final boolean concatenate) {
+    return canCalibrateBackwards(pieces, value - pieces[index], index - 1, concatenate);
+  }
+
+  private boolean canMultiply(final long[] pieces, final long value, final int index,
+      final boolean concatenate) {
+    if (value % pieces[index] == 0) {
+      return canCalibrateBackwards(pieces, value / pieces[index], index - 1, concatenate);
+    }
+    return false;
+  }
+
+  private boolean canConcatenate(final long[] pieces, final long value, final int index) {
+    long length = (long) Math.pow(10, String.valueOf(pieces[index]).length());
+    if ((value % length) == pieces[index]) {
+      return canCalibrateBackwards(pieces, value / length, index - 1, true);
+    }
+    return false;
   }
 }
