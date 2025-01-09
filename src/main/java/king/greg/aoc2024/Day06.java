@@ -9,42 +9,36 @@ public class Day06 {
 
   static final Point[] directions = {new Point(0, -1), new Point(1, 0), new Point(0, 1),
       new Point(-1, 0)};
-  private final Set<Point> obstacles = new HashSet<>();
-  private final int maxX;
-  private final int maxY;
-  private Point startLocation;
+  private final char[][] map;
+  private int startX;
+  private int startY;
 
   Day06(final List<String> lines) {
-    maxX = lines.getFirst().length() - 1;
-    maxY = lines.size() - 1;
+    map = new char[lines.getFirst().length() + 2][lines.size() + 2];
     for (int y = 0; y < lines.size(); y++) {
       for (int x = 0; x < lines.get(y).length(); x++) {
-        switch (lines.get(y).charAt(x)) {
-          case '#':
-            obstacles.add(new Point(x, y));
-            break;
-          case '^':
-            startLocation = new Point(x, y);
-            break;
-          default:
+        char current = lines.get(y).charAt(x);
+        map[x + 1][y + 1] = current;
+        if (current == '^') {
+          startX = x + 1;
+          startY = y + 1;
         }
       }
     }
   }
 
   public int guardPositions() {
-    Point guardLocation = new Point(startLocation);
+    Point guardLocation = new Point(startX, startY);
     int guardDirection = 0;
 
     final Set<Point> positions = new HashSet<>();
 
     positions.add(new Point(guardLocation.x, guardLocation.y));
-    while (guardLocation.x <= maxX && guardLocation.y <= maxY && guardLocation.x >= 0
-        && guardLocation.y >= 0) {
+    while (map[guardLocation.x][guardLocation.y] != 0) {
       positions.add(new Point(guardLocation.x, guardLocation.y));
       var nextStep = new Point(guardLocation.x + directions[guardDirection].x,
           guardLocation.y + directions[guardDirection].y);
-      if (obstacles.contains(nextStep)) {
+      if (map[nextStep.x][nextStep.y] == '#') {
         guardDirection = (guardDirection + 1) % 4;
       } else {
         guardLocation = nextStep;
@@ -54,49 +48,53 @@ public class Day06 {
   }
 
   public int obstructions() {
-    Point guardLocation = new Point(startLocation);
+    int obstructions = 0;
+    int guardX = startX;
+    int guardY = startY;
     int guardDirection = 0;
-    final boolean[] path = new boolean[1048576];
-    final Set<Point> positions = new HashSet<>();
-    final Set<Point> obstacleOptions = new HashSet<>();
-    while (guardLocation.x <= maxX && guardLocation.y <= maxY && guardLocation.x >= 0
-        && guardLocation.y >= 0) {
-      int pathKey = (((guardLocation.x << 9) + guardLocation.y) << 2) + guardDirection;
-      path[pathKey] = true;
-      positions.add(new Point(guardLocation));
-      var nextStep = new Point(guardLocation.x + directions[guardDirection].x,
-          guardLocation.y + directions[guardDirection].y);
-      if (obstacles.contains(nextStep)) {
+
+    final Set<Integer> path = new HashSet<>();
+    final Set<Integer> corners = new HashSet<>();
+    final Set<Integer> potentialCorners = new HashSet<>();
+
+    while (map[guardX][guardY] != 0) {
+      int pathKey = (guardX << 9) + guardY;
+      path.add(pathKey);
+      var nextX = guardX + directions[guardDirection].x;
+      var nextY = guardY + directions[guardDirection].y;
+      if (map[nextX][nextY] == '#') {
         guardDirection = (guardDirection + 1) % 4;
-      } else if (obstacleOptions.contains(nextStep) ||
-          positions.contains(nextStep) ||
-          !(nextStep.x <= maxX && nextStep.y <= maxY && nextStep.x >= 0 && nextStep.y >= 0)) {
-        guardLocation = new Point(nextStep);
+        corners.add((((guardX << 9) + guardY) << 2) + guardDirection);
+      } else if (path.contains((nextX << 9) + nextY) || map[nextX][nextY] == 0) {
+        guardX = nextX;
+        guardY = nextY;
       } else {
         var potentialDirection = (guardDirection + 1) % 4;
-        var potentialX = guardLocation.x;
-        var potentialY = guardLocation.y;
-        boolean[] potentialPath = new boolean[1048576];
-        while (potentialX <= maxX && potentialY <= maxY && potentialX >= 0 && potentialY >= 0) {
-          var potentialPathStep = (((potentialX << 9) + potentialY) << 2) + potentialDirection;
-          if (potentialPath[potentialPathStep] || path[potentialPathStep]) {
-            obstacleOptions.add(nextStep);
-            break;
-          }
-          potentialPath[potentialPathStep] = true;
+        var potentialX = guardX;
+        var potentialY = guardY;
+        potentialCorners.clear();
+        map[nextX][nextY] = '#';
+        while (map[potentialX][potentialY] != 0) {
           var nextPotentialX = potentialX + directions[potentialDirection].x;
           var nextPotentialY = potentialY + directions[potentialDirection].y;
-          if (obstacles.contains(new Point(nextPotentialX, nextPotentialY)) || nextStep.equals(
-              new Point(nextPotentialX, nextPotentialY))) {
+          if (map[nextPotentialX][nextPotentialY] == '#') {
             potentialDirection = (potentialDirection + 1) % 4;
+            var newCorner = (((potentialX << 9) + potentialY) << 2) + potentialDirection;
+            if (corners.contains(newCorner) || potentialCorners.contains(newCorner)) {
+              obstructions++;
+              break;
+            }
+            potentialCorners.add(newCorner);
           } else {
             potentialX = nextPotentialX;
             potentialY = nextPotentialY;
           }
         }
-        guardLocation = new Point(nextStep);
+        map[nextX][nextY] = '.';
+        guardX = nextX;
+        guardY = nextY;
       }
     }
-    return obstacleOptions.size();
+    return obstructions;
   }
 }
